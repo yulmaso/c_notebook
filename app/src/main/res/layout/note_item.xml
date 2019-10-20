@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    style="@style/MyCardViewStyle"
+    android:layout_marginBottom="1dp"
+    android:layout_marginHorizontal="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/header_tv"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="25sp"
+        android:textColor="@color/text_black"
+        android:layout_marginStart="15dp"
+        tools:text="Name of the note"/>
+
+    <TextView
+        android:id="@+id/time_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_alignEnd="@+id/header_tv"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/header_tv"
+        tools:text="12:32"/>
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="15sp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@+id/header_tv"
+            tools:text="19.05"/>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
