@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         initRecyclerView();
         initActionBar();
         initTextView();
-        initSpinnerAndSwitchScreenAnimations();
+        initSpinner();
 
         refreshNotes();
         refreshCalendar();
@@ -228,7 +228,8 @@ public class MainActivity extends AppCompatActivity {
         calendar.setEvents(events);
     }
 
-    private void initSpinnerAndSwitchScreenAnimations(){
+    //initialises spinner on the toolbar, that changes the view of the activity, and animations
+    private void initSpinner(){
         spinner = findViewById(R.id.main_appearance_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item,
