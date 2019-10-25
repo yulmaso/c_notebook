@@ -6,6 +6,12 @@
     <string name="coming_soon">Coming soon</string>
     <string name="action_show_all_notes">Show all notes</string>
 
+    <!--Spinner items main-->
+    <string-array name="spinner_main_items">
+        <item name="calendar_view">Calendar</item>
+        <item name="all_notes_view">All notes</item>
+    </string-array>
+
     <string name="time_btn">tap to set time</string>
 
     <!--Delete dialog-->

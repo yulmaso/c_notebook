@@ -1,16 +1,18 @@
 package com.example.notebook.Activities;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,13 +45,16 @@ public class MainActivity extends AppCompatActivity {
     private DBHelper dbHelper;
     private NotesAdapter notesAdapter;
     private Intent intent;
+
     private RecyclerView list_rv;
     private CalendarView calendar;
     private FloatingActionButton fab;
     private LinearLayout layout_content_main;
-
+    private LinearLayout list_layout;
     private TextView textView;
     private LinearLayout.LayoutParams lParams;
+    private Spinner spinner;
+
     private int tv_id = 1;
 
     @Override
@@ -64,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         intent = new Intent(this, NoteActivity.class);
         layout_content_main = findViewById(R.id.layout_content_main);
+        list_layout = findViewById(R.id.list_layout);
 
         allNotesScreen = false;
 
@@ -71,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         initRecyclerView();
         initActionBar();
         initTextView();
+        initSpinnerAndSwitchScreenAnimations();
 
         refreshNotes();
         refreshCalendar();
@@ -92,19 +99,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.coming_soon){
 
         }
-//        if (id == R.id.action_show_all_notes) {
-//            allNotesScreen = !allNotesScreen;
-//            if (allNotesScreen){
-//                calendar.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_disappear));
-//                layout_content_main.removeView(calendar);
-//                refreshNotes();
-//            } else {
-//                layout_content_main.addView(calendar, 0);
-//                initCalendarView();
-//                refreshCalendar();
-//                refreshNotes();
-//            }
-//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -214,12 +208,12 @@ public class MainActivity extends AppCompatActivity {
            notes = dbHelper.getNotesOnDate(dateFormat.format(calendar.getFirstSelectedDate().getTime()));
         }
         if (notes != null && notes.size() == 0){
-            if (layout_content_main.findViewById(tv_id) == null){
-                layout_content_main.addView(textView, lParams);
+            if (list_layout.findViewById(tv_id) == null){
+                list_layout.addView(textView, lParams);
                 textView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_fall_down));
             }
         } else {
-            layout_content_main.removeView(findViewById(tv_id));
+            list_layout.removeView(findViewById(tv_id));
             notesAdapter.setItems(notes);
         }
     }
@@ -232,5 +226,69 @@ public class MainActivity extends AppCompatActivity {
             events.add(new EventDay(date, R.drawable.ic_note_black_24dp));
         }
         calendar.setEvents(events);
+    }
+
+    private void initSpinnerAndSwitchScreenAnimations(){
+        spinner = findViewById(R.id.main_appearance_spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item,
+                getResources().getStringArray(R.array.spinner_main_items));
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0);
+
+        Animation animationAppear = AnimationUtils.loadAnimation(this, R.anim.animation_appear);
+        Animation animationDisappear = AnimationUtils.loadAnimation(this, R.anim.animation_disappear);
+        animationAppear.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                notesAdapter.clearItems();
+                calendar.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                refreshNotes();
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        animationDisappear.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                notesAdapter.clearItems();
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                calendar.setVisibility(View.GONE);
+                refreshNotes();
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch(position){
+                    case 0: { //Calendar
+                        if (allNotesScreen){
+                            allNotesScreen = false;
+                            calendar.startAnimation(animationAppear);
+                        }
+                        break;
+                    }
+                    case 1: { //All notes
+                        if (!allNotesScreen){
+
+                            allNotesScreen = true;
+                            calendar.startAnimation(animationDisappear);
+                        }
+                        break;
+                    }
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
     }
 }
