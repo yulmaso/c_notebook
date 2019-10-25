@@ -4,39 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.NoteActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".Activities.NoteActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:orientation="horizontal"
-        android:background="@color/backgroundLight">
+        android:background="@color/backgroundLight"
+        android:orientation="horizontal">
+
         <ImageButton
             android:id="@+id/back_button"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_chevron_left_black_24dp"
-            android:background="@drawable/background_transparent"/>
+            android:background="@drawable/background_transparent"
+            app:srcCompat="@drawable/ic_chevron_left_black_24dp" />
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:id="@+id/note_date_tv"
-            tools:text="04.01.1997"
-            android:gravity="center"/>
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:gravity="center"
+            tools:text="04.01.1997" />
+
+        <TextView
             android:id="@+id/note_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="10dp"
-            tools:text="02:15"
-            android:gravity="center"/>
+            android:gravity="center"
+            tools:text="02:15" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/backgroundDark"/>
+        android:background="@color/backgroundDark" />
+
+    <LinearLayout
+        android:id="@+id/tags_place_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"/>
 
     <ScrollView
         android:id="@+id/scroll_et"
@@ -45,34 +54,36 @@
         android:layout_weight="8">
 
         <EditText
+            android:id="@+id/note_et"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:id="@+id/note_et"
-            android:textSize="20sp"
-            tools:text="Here is a test note"
+            android:layout_margin="10dp"
             android:background="@drawable/background_transparent"
-            android:textCursorDrawable="@null" />
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            android:lineSpacingExtra="@dimen/tv_linespacing_extra"
+            tools:text="Here is a test note" />
 
     </ScrollView>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/backgroundDark"/>
+        android:background="@color/backgroundDark" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:orientation="horizontal"
+        android:background="@color/backgroundLight"
         android:gravity="center_horizontal"
-        android:background="@color/backgroundLight">
+        android:orientation="horizontal">
+
         <ImageButton
+            android:id="@+id/delete_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_delete_black_24dp"
             android:background="@drawable/background_transparent"
-            android:id="@+id/delete_button"/>
+            app:srcCompat="@drawable/ic_delete_black_24dp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -9,9 +9,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.notebook.Activities.NoteActivity;
 import com.example.notebook.R;
 
 public class DeleteDialog extends DialogFragment implements View.OnClickListener {
+
+    private NoteActivity noteActivity;
+
+    public DeleteDialog(NoteActivity noteActivity){
+        this.noteActivity = noteActivity;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,7 +36,23 @@ public class DeleteDialog extends DialogFragment implements View.OnClickListener
     }
 
     @Override
-    public void onClick(View v) {
+    public void onResume() {
+        super.onResume();
+        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.delete_dialog_button:{
+                noteActivity.deleteNote();
+                dismiss();
+                break;
+            }
+            case R.id.cancel_dialog_button:{
+                dismiss();
+                break;
+            }
+        }
     }
 }

@@ -1,16 +1,18 @@
 package com.example.notebook.Activities;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +38,8 @@ import static com.example.notebook.OtherStuff.Constants.*;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static boolean allNotesScreen;
+
     private DBHelper dbHelper;
     private NotesAdapter notesAdapter;
     private Intent intent;
@@ -52,14 +56,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         dbHelper = new DBHelper(this);
         if (!dbHelper.checkDataBase()) dbHelper.updateDataBase();
 
         intent = new Intent(this, NoteActivity.class);
         layout_content_main = findViewById(R.id.layout_content_main);
+
+        allNotesScreen = false;
 
         initCalendarView();
         initRecyclerView();
@@ -72,30 +78,33 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Animation animation = AnimationUtils.makeOutAnimation(this, true);
-            calendar.startAnimation(animation);
-            LinearLayout layout = findViewById(R.id.layout_content_main);
-            layout.removeView(calendar);
-            return true;
+            Toast.makeText(this, "There are no settings in this app yet :(", Toast.LENGTH_SHORT).show();
         }
-        if (id == R.id.action_refresh) {
-            refreshNotes();
-        }
+        if (id == R.id.coming_soon){
 
+        }
+//        if (id == R.id.action_show_all_notes) {
+//            allNotesScreen = !allNotesScreen;
+//            if (allNotesScreen){
+//                calendar.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_disappear));
+//                layout_content_main.removeView(calendar);
+//                refreshNotes();
+//            } else {
+//                layout_content_main.addView(calendar, 0);
+//                initCalendarView();
+//                refreshCalendar();
+//                refreshNotes();
+//            }
+//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -128,6 +137,14 @@ public class MainActivity extends AppCompatActivity {
             refreshNotes();
             refreshCalendar();
         }
+        if (resultCode == RESULT_DELETE){
+            int id = data.getIntExtra("ID", -1);
+            if (id != -1){
+                dbHelper.deleteNote(id);
+            }
+            refreshNotes();
+            refreshCalendar();
+        }
     }
 
     private void initCalendarView(){
@@ -156,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CODE_UPDATENOTE);
             }
         };
-        notesAdapter = new NotesAdapter(onNoteClickListener);
+        notesAdapter = new NotesAdapter(onNoteClickListener, this);
         list_rv.setAdapter(notesAdapter);
     }
 
@@ -165,7 +182,13 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Note note = new Note("", dateFormat.format(calendar.getFirstSelectedDate().getTime()), "");
+                String date;
+                if (allNotesScreen){
+                    date = dateFormat.format(Calendar.getInstance().getTime());
+                } else {
+                    date = dateFormat.format(calendar.getFirstSelectedDate().getTime());
+                }
+                Note note = new Note("", date, "");
                 intent.putExtra("Note", note);
                 startActivityForResult(intent, REQUEST_CODE_NEWNOTE);
             }
@@ -184,9 +207,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshNotes(){
         notesAdapter.clearItems();
-        ArrayList<Note> notes = dbHelper.getNotesOnDate(dateFormat.format(calendar.getFirstSelectedDate().getTime()));
+        ArrayList<Note> notes;
+        if (allNotesScreen) {
+           notes = dbHelper.getAllNotes();
+        } else {
+           notes = dbHelper.getNotesOnDate(dateFormat.format(calendar.getFirstSelectedDate().getTime()));
+        }
         if (notes != null && notes.size() == 0){
-            if (layout_content_main.findViewById(tv_id) == null) layout_content_main.addView(textView, lParams);
+            if (layout_content_main.findViewById(tv_id) == null){
+                layout_content_main.addView(textView, lParams);
+                textView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_fall_down));
+            }
         } else {
             layout_content_main.removeView(findViewById(tv_id));
             notesAdapter.setItems(notes);

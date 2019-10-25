@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -10,11 +9,17 @@
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
         <item name="android:buttonStyle">@style/RobotoButtonStyle</item>
         <item name="editTextStyle">@style/RobotoEditTextStyle</item>
+        <item name="toolbarStyle">@style/ToolbarTheme</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColor">@color/text_material_dark</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="RobotoEditTextStyle" parent="android:Widget.EditText">

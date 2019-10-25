@@ -21,7 +21,6 @@ import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 
 import static com.example.notebook.OtherStuff.Constants.LOG_TAG;
-import static com.example.notebook.OtherStuff.Constants.LOCK;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -40,8 +39,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper (Context context){
         super(context, DB_NAME, null, 1);
-
-        LOCK = false;
 
         if (android.os.Build.VERSION.SDK_INT >= 17)
             DB_PATH = context.getApplicationInfo().dataDir + "/databases/";

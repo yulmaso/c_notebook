@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/backgroundLight"/>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item>
+    <item
+        android:drawable="@color/backgroundLight"/>
+
+    <item
+        android:gravity="center"
+        android:width="180dp"
+        android:height="38.4dp">
         <bitmap
-            android:src="@mipmap/ic_launcher"
-            android:gravity="center"/>
+            android:src="@drawable/notebook_full"/>
     </item>
+
 </layer-list>

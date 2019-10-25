@@ -1,9 +1,12 @@
 package com.example.notebook.Adapters;
 
+import android.content.Context;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,9 +25,11 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
 
     private List<Note> notes = new ArrayList<>();
     private OnNoteClickListener onNoteClickListener;
+    private Context context;
 
-    public NotesAdapter(OnNoteClickListener onNoteClickListener){
+    public NotesAdapter(OnNoteClickListener onNoteClickListener, Context context){
         this.onNoteClickListener = onNoteClickListener;
+        this.context = context;
     }
 
     public interface OnNoteClickListener{
@@ -51,6 +56,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     @Override
     public void onBindViewHolder(@NonNull NotesViewHolder notesViewHolder, int i) {
         notesViewHolder.bind(notes.get(i));
+        setAnimation(notesViewHolder.itemView);
+    }
+
+    private void setAnimation(View view){
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.animation_fall_down);
+        view.startAnimation(animation);
     }
 
     @Override

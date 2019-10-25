@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom">
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/delete_dialog_header"
-        android:textStyle="bold"
         android:textAlignment="center"
+        android:textColor="@color/text_black"
         android:textSize="22sp"
-        android:textColor="@color/text_black"/>
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/delete_dialog_text"
-        android:textSize="20sp"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="10dp"
-        />
+        android:text="@string/delete_dialog_text"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="30dp"
+        android:background="@color/backgroundDark" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp">
+        android:orientation="horizontal">
 
         <Button
+            android:id="@+id/cancel_dialog_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginHorizontal="5dp"
-            android:id="@+id/cancel_dialog_button"
+            android:background="@color/backgroundLight"
             android:text="@string/cancel_button_text"
-            android:textColor="@color/text_black"
-            android:background="@color/backgroundDark"/>
+            android:textColor="@color/text_black" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/backgroundDark" />
 
         <Button
             android:id="@+id/delete_dialog_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5dp"
             android:layout_weight="1"
+            android:background="@color/backgroundLight"
             android:text="@string/delete_button_text"
-            android:textColor="@color/text_black"
-            android:background="@color/backgroundDark"/>
+            android:textColor="@color/text_black" />
 
     </LinearLayout>
 

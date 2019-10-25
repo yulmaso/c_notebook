@@ -1,11 +1,13 @@
 package com.example.notebook.Activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -24,6 +26,7 @@ import net.yslibrary.android.keyboardvisibilityevent.util.UIUtil;
 import java.util.Date;
 
 import static com.example.notebook.OtherStuff.Constants.LOG_TAG;
+import static com.example.notebook.OtherStuff.Constants.RESULT_DELETE;
 import static com.example.notebook.OtherStuff.Constants.timeToWriteFormat;
 
 public class NoteActivity extends AppCompatActivity {
@@ -86,11 +89,10 @@ public class NoteActivity extends AppCompatActivity {
         note_date_tv = findViewById(R.id.note_date_tv);
         note_time_tv = findViewById(R.id.note_time_tv);
 
-        deleteDialog = new DeleteDialog();
+        deleteDialog = new DeleteDialog(this);
 
         if (receivedNote.getText().equals("")){ //if it's new note
-            Log.d(LOG_TAG, "in this method......");
-            UIUtil.showKeyboard(this, note_et);
+            showKeyboard(this);
         } else { //if it's existing note
 //            ((ScrollView)findViewById(R.id.scroll_et)).setFocusableInTouchMode(true);
         }
@@ -113,5 +115,18 @@ public class NoteActivity extends AppCompatActivity {
                 onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
             }
         });
+    }
+
+    public static void showKeyboard(Activity activity) {
+        if (activity != null) {
+            activity.getWindow()
+                    .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
+    public void deleteNote(){
+        intent.putExtra("ID", receivedNote.getId());
+        setResult(RESULT_DELETE, intent);
+        finish();
     }
 }

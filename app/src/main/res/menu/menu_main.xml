@@ -8,7 +8,7 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_refresh"
+        android:id="@+id/coming_soon"
         android:orderInCategory="101"
-        android:title="@string/action_show_all_notes" />
+        android:title="@string/coming_soon"/>
 </menu>
