@@ -21,4 +21,18 @@
     <string name="cancel_button_text">Cancel</string>
 
     <string name="text_view_instead_of_list">Nothing to show</string>
+
+    <!--Navigation view-->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">notebook.</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_hashtags">Hashtags</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
 </resources>

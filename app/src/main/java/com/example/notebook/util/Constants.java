@@ -1,4 +1,4 @@
-package com.example.notebook.OtherStuff;
+package com.example.notebook.util;
 
 import java.text.SimpleDateFormat;
 

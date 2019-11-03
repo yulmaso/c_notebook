@@ -13,4 +13,13 @@
 
     <color name="text_material_dark">#8A000000</color>
     <color name="text_black">#BF000000</color>
+
+    <color name="white">#FFFFFF</color>
+
+    <color name="hashtag_zero">#ff8a65</color>
+    <color name="hashtag_one">#81c784</color>
+    <color name="hashtag_two">#7986cb</color>
+    <color name="hashtag_three">#ffd54f</color>
+    <color name="hashtag_four">#f06292</color>
+    <color name="hashtag_five">#4fc3f7</color>
 </resources>

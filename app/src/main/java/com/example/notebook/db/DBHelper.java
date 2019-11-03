@@ -1,4 +1,4 @@
-package com.example.notebook.DBclasses;
+package com.example.notebook.db;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.notebook.POJO.Note;
+import com.example.notebook.POJO.Hashtag;
 import com.example.notebook.R;
 
 import java.io.File;
@@ -18,9 +19,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static com.example.notebook.OtherStuff.Constants.LOG_TAG;
+import static com.example.notebook.util.Constants.LOG_TAG;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -36,9 +38,12 @@ public class DBHelper extends SQLiteOpenHelper {
     private GetAllNotesTask getAllNotesTask;
     private GetNotesOnDateTask getNotesOnDateTask;
     private GetDatesTask getDatesTask;
+    private WriteHashtagsTask writeHashtagsTask;
+    private GetAllHashtagsTask getAllHashtagsTask;
+    private GetSpecificHashtagsTask getSpecificHashtagsTask;
 
     public DBHelper (Context context){
-        super(context, DB_NAME, null, 1);
+        super(context, DB_NAME, null, 2);
 
         if (android.os.Build.VERSION.SDK_INT >= 17)
             DB_PATH = context.getApplicationInfo().dataDir + "/databases/";
@@ -117,6 +122,37 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteNote(int id){
         deleteNoteTask = new DeleteNoteTask(getWritableDatabase());
         deleteNoteTask.execute(id);
+    }
+
+    public void writeTags(List<Hashtag> tags){
+        writeHashtagsTask = new WriteHashtagsTask(getWritableDatabase());
+        writeHashtagsTask.execute(tags);
+    }
+
+    public ArrayList<Hashtag> getAllTags(){
+        getAllHashtagsTask = new GetAllHashtagsTask(getReadableDatabase());
+        getAllHashtagsTask.execute();
+        try {
+            return getAllHashtagsTask.get();
+        } catch(InterruptedException e){
+            Log.d(LOG_TAG, e.getMessage());
+        } catch (ExecutionException e){
+            Log.d(LOG_TAG, e.getMessage());
+        }
+        return null;
+    }
+
+    public ArrayList<Hashtag> getSpecificHashtags(int note_id){
+        getSpecificHashtagsTask = new GetSpecificHashtagsTask(getReadableDatabase());
+        getSpecificHashtagsTask.execute(note_id);
+        try {
+            return getSpecificHashtagsTask.get();
+        } catch(InterruptedException e){
+            Log.d(LOG_TAG, e.getMessage());
+        } catch (ExecutionException e){
+            Log.d(LOG_TAG, e.getMessage());
+        }
+        return null;
     }
 
     public Note getNote(int id){
@@ -336,4 +372,80 @@ public class DBHelper extends SQLiteOpenHelper {
             return datesForCalendar;
         }
     }
+
+    private static class WriteHashtagsTask extends AsyncTask<List<Hashtag>, Void, Void>{
+        SQLiteDatabase db;
+
+        WriteHashtagsTask(SQLiteDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(List<Hashtag>... lists) {
+            for (int i = 0; i < lists[0].size(); i++){
+                ContentValues cv = new ContentValues();
+                cv.put("hashtag", lists[0].get(i).getHashtag());
+                cv.put("id_note", lists[0].get(i).getNote_id());
+                Log.d(LOG_TAG, lists[0].get(i).getHashtag());
+                Log.d(LOG_TAG, "WRITE HT TASK: " + lists[0].get(i).getHashtag());
+                try {
+                    db.insert("hashtags", null, cv);
+                } catch (Exception e){
+                    Log.d(LOG_TAG, e.getMessage());
+                }
+            }
+            return null;
+        }
+    }
+
+    private static class GetAllHashtagsTask extends AsyncTask<Void, Void, ArrayList<Hashtag>>{
+        SQLiteDatabase db;
+
+        public GetAllHashtagsTask(SQLiteDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected ArrayList<Hashtag> doInBackground(Void... voids) {
+            ArrayList<Hashtag> hashtags = new ArrayList<>();
+            Log.d(LOG_TAG, "on GetAllHashtagsTask");
+
+            Cursor c = db.rawQuery("SELECT hashtag FROM hashtags GROUP BY hashtag ORDER BY hashtag", null);
+            if (c != null && c.moveToFirst()){
+                do {
+                    Log.d(LOG_TAG, "Reading hashtag: " + c.getString(0));
+                    Hashtag hashtag = new Hashtag(c.getString(0));
+                    hashtags.add(hashtag);
+                } while (c.moveToNext());
+                c.close();
+            }
+
+            return hashtags;
+        }
+    }
+
+    private static class GetSpecificHashtagsTask extends AsyncTask<Integer, Void, ArrayList<Hashtag>>{
+        SQLiteDatabase db;
+
+        public GetSpecificHashtagsTask(SQLiteDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected ArrayList<Hashtag> doInBackground(Integer... integers) {
+            ArrayList<Hashtag> hashtags = new ArrayList<>();
+
+            Cursor c = db.rawQuery("SELECT * FROM hashtags WHERE id_note = " + integers[0], null);
+            if (c != null && c.moveToFirst()){
+                do {
+                    Hashtag hashtag = new Hashtag(integers[0], c.getString(0));
+                    hashtags.add(hashtag);
+                } while (c.moveToNext());
+                c.close();
+            }
+
+            return hashtags;
+        }
+    }
+
 }

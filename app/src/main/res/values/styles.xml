@@ -36,9 +36,13 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
-    <style name="MyCardViewStyle" parent="Theme.AppCompat.Light">
+    <style name="CardViewMainStyle" parent="Theme.AppCompat.Light">
         <item name="cardElevation">1dp</item>
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
+    </style>
+
+    <style name="HtagsBarCardViewStyle" parent="Theme.AppCompat.Light">
+        <item name="cardCornerRadius">5dp</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">

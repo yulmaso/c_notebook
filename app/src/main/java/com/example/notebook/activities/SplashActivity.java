@@ -1,4 +1,4 @@
-package com.example.notebook.Activities;
+package com.example.notebook.activities;
 
 import android.content.Intent;
 import android.os.Bundle;

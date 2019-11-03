@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.SplashActivity"
+            android:name=".activities.SplashActivity"
             android:label="@string/app_name"
             android:theme="@style/SplashTheme"
             android:screenOrientation="portrait">
@@ -20,15 +20,37 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
-        <activity android:name=".Activities.NoteActivity"
+        <activity android:name=".activities.NoteActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustPan"></activity>
+            android:windowSoftInputMode="stateHidden|adjustPan">
+
+        </activity>
+        <activity android:name=".activities.other.HashtagsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+
+        </activity>
+        <activity android:name=".activities.other.MapActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+
+        </activity>
+        <activity android:name=".activities.other.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+
+        </activity>
+        <activity android:name=".activities.other.SecondaryActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+
+        </activity>
     </application>
 
 </manifest>

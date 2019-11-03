@@ -1,4 +1,11 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="tv_linespacing_extra">3sp</dimen>
+
+    <dimen name="header_text_size">25sp</dimen>
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
 </resources>

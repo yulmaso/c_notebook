@@ -1,4 +1,4 @@
-package com.example.notebook.Activities;
+package com.example.notebook.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,9 +16,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,34 +30,41 @@ import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
 import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
-import com.example.notebook.DBclasses.DBHelper;
-import com.example.notebook.Adapters.NotesAdapter;
+import com.example.notebook.POJO.Hashtag;
+import com.example.notebook.activities.other.HashtagsActivity;
+import com.example.notebook.activities.other.MapActivity;
+import com.example.notebook.activities.other.SettingsActivity;
+import com.example.notebook.db.DBHelper;
+import com.example.notebook.adapters.NotesAdapter;
 import com.example.notebook.POJO.Note;
 import com.example.notebook.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.example.notebook.OtherStuff.Constants.*;
+import static com.example.notebook.util.Constants.*;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     public static boolean allNotesScreen;
 
     private DBHelper dbHelper;
     private NotesAdapter notesAdapter;
-    private Intent intent;
+    private Intent note_intent;
 
     private RecyclerView list_rv;
     private CalendarView calendar;
     private FloatingActionButton fab;
-    private LinearLayout layout_content_main;
     private LinearLayout list_layout;
     private TextView textView;
     private LinearLayout.LayoutParams lParams;
     private Spinner spinner;
+    private Toolbar toolbar;
+    private NavigationView navigationView;
+    private DrawerLayout drawer;
 
     private int tv_id = 1;
 
@@ -61,14 +72,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
         dbHelper = new DBHelper(this);
         if (!dbHelper.checkDataBase()) dbHelper.updateDataBase();
 
-        intent = new Intent(this, NoteActivity.class);
-        layout_content_main = findViewById(R.id.layout_content_main);
+        note_intent = new Intent(this, NoteActivity.class);
         list_layout = findViewById(R.id.list_layout);
 
         allNotesScreen = false;
@@ -78,9 +88,16 @@ public class MainActivity extends AppCompatActivity {
         initActionBar();
         initTextView();
         initSpinner();
+        initNavView();
 
         refreshNotes();
         refreshCalendar();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(R.id.nav_home);
     }
 
     @Override
@@ -96,10 +113,39 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             Toast.makeText(this, "There are no settings in this app yet :(", Toast.LENGTH_SHORT).show();
         }
-        if (id == R.id.coming_soon){
-
-        }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Intent intent;
+        switch (menuItem.getItemId()){
+            case R.id.nav_home:
+                break;
+            case R.id.nav_hashtags:
+                intent = new Intent(this, HashtagsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_map:
+                intent = new Intent(this, MapActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+        }
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)){
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -111,11 +157,18 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK){
             Bundle arguments = data.getExtras();
             Note note = (Note) arguments.getSerializable("Note");
+            ArrayList<Hashtag> hashtags = arguments.getParcelableArrayList("Hashtags");
             Log.d(LOG_TAG, "Text: " + note.getText());
             switch (requestCode){
                 case REQUEST_CODE_NEWNOTE:{
                     if (!note.getText().equals("")) {
                         dbHelper.newNote(note);
+                        try {
+                            Log.d(LOG_TAG, "On hashtags write");
+                            dbHelper.writeTags(hashtags);
+                        } catch (NullPointerException e){
+                            Log.d(LOG_TAG, e.getMessage());
+                        }
                     }
                     break;
                 }
@@ -124,6 +177,13 @@ public class MainActivity extends AppCompatActivity {
                         dbHelper.deleteNote(note.getId());
                     } else {
                         dbHelper.updateNote(note);
+                        try {
+                            //TODO: когда редактируешь хэштег, старая версия остается в базе
+                            Log.d(LOG_TAG, "On hashtags write");
+                            dbHelper.writeTags(hashtags);
+                        } catch (NullPointerException e){
+                            Log.d(LOG_TAG, e.getMessage());
+                        }
                     }
                     break;
                 }
@@ -163,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
         NotesAdapter.OnNoteClickListener onNoteClickListener = new NotesAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(Note note) {
-                intent.putExtra("Note", note);
-                startActivityForResult(intent, REQUEST_CODE_UPDATENOTE);
+                note_intent.putExtra("Note", note);
+                startActivityForResult(note_intent, REQUEST_CODE_UPDATENOTE);
             }
         };
         notesAdapter = new NotesAdapter(onNoteClickListener, this);
@@ -183,8 +243,8 @@ public class MainActivity extends AppCompatActivity {
                     date = dateFormat.format(calendar.getFirstSelectedDate().getTime());
                 }
                 Note note = new Note("", date, "");
-                intent.putExtra("Note", note);
-                startActivityForResult(intent, REQUEST_CODE_NEWNOTE);
+                note_intent.putExtra("Note", note);
+                startActivityForResult(note_intent, REQUEST_CODE_NEWNOTE);
             }
         });
     }
@@ -228,7 +288,8 @@ public class MainActivity extends AppCompatActivity {
         calendar.setEvents(events);
     }
 
-    //initialises spinner on the toolbar, that changes the view of the activity, and animations
+    //initialises spinner on the toolbar, that changes the view of the activity between
+    // 'calendar view' and 'all notes', and animations of the
     private void initSpinner(){
         spinner = findViewById(R.id.main_appearance_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -291,5 +352,15 @@ public class MainActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+    }
+
+    private void initNavView(){
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
     }
 }

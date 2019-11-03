@@ -1,4 +1,4 @@
-package com.example.notebook.Adapters;
+package com.example.notebook.adapters;
 
 import android.content.Context;
 import android.view.ContextMenu;
@@ -49,7 +49,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     @NonNull
     @Override
     public NotesViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.note_item, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_note, viewGroup, false);
         return new NotesViewHolder(view);
     }
 

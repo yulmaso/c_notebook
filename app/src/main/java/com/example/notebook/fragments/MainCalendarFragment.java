@@ -1,4 +1,4 @@
-package com.example.notebook.Fragments;
+package com.example.notebook.fragments;
 
 import androidx.fragment.app.Fragment;
 
