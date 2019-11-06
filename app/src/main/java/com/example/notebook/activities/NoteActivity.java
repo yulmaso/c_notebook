@@ -37,10 +37,10 @@ public class NoteActivity extends AppCompatActivity {
     private NoteEditText note_et;
     private ImageButton delete_button, back_button;
     private TextView note_date_tv, note_time_tv;
-    private LinearLayout hashtags_holder_layout;
     private View hashtags_holder_layout_separator;
     private ScrollView scroll_et;
 
+    private ArrayList<Hashtag> recievedHashtags;
     private Note receivedNote;
 
     private Intent intent;
@@ -53,8 +53,6 @@ public class NoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_note);
 
         intent = new Intent();
-        scroll_et =findViewById(R.id.scroll_et);
-//        note_et = findViewById(R.id.note_et);
 
         handleReceivedExtras();
 
@@ -99,8 +97,8 @@ public class NoteActivity extends AppCompatActivity {
                 note_et.setText(receivedNote.getText());
                 note_et.setSelection(note_et.getText().length());
 
-                ArrayList<Hashtag> hashtags = note_et.getHashtags();
-                if (hashtags.size() != 0) initHashtagsHolderLayout(hashtags);
+                recievedHashtags = note_et.getHashtags();
+                if (recievedHashtags.size() != 0) initHashtagsHolderLayout(recievedHashtags);
             } catch (NullPointerException e) {
                 Log.d(LOG_TAG, e.getMessage());
             }
@@ -115,22 +113,17 @@ public class NoteActivity extends AppCompatActivity {
         lParams.setMargins(10, 10, 10, 10);
         NoteEditText.HashtagListener hashtagListener = new NoteEditText.HashtagListener() {
             @Override
-            public void onNewHashtag() {
-                initHashtagsHolderLayout(note_et.getHashtags());
-            }
-
-            @Override
             public void onEditHashtag() {
                 initHashtagsHolderLayout(note_et.getHashtags());
             }
         };
         note_et = new NoteEditText(this, receivedNote.getId(), hashtagListener);
         note_et.setBackgroundResource(R.drawable.background_transparent);
+        scroll_et = findViewById(R.id.scroll_et);
         scroll_et.addView(note_et, lParams);
     }
 
     private void initHashtagsHolderLayout(ArrayList<Hashtag> hashtags){
-//        hashtags_holder_layout = findViewById(R.id.hashtags_holder_layout);
         hashtags_holder_layout_separator = findViewById(R.id.hashtag_holder_layout_separator);
 
         RecyclerView hashtag_bar_rv = findViewById(R.id.hashtag_bar_rv);

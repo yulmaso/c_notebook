@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Menu;
+import android.view.View;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,6 +43,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.example.notebook.util.Constants.*;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DBHelper dbHelper;
     private NotesAdapter notesAdapter;
     private Intent note_intent;
+
+    private ArrayList<Hashtag> oldHashtags;
 
     private RecyclerView list_rv;
     private CalendarView calendar;
@@ -87,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initRecyclerView();
         initActionBar();
         initTextView();
-        initSpinner();
+        initToolbarButton();
         initNavView();
 
         refreshNotes();
@@ -179,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         dbHelper.updateNote(note);
                         try {
                             //TODO: когда редактируешь хэштег, старая версия остается в базе
+                            dbHelper.deleteHashtags(getRemovedHashtags(oldHashtags, hashtags));
                             Log.d(LOG_TAG, "On hashtags write");
                             dbHelper.writeTags(hashtags);
                         } catch (NullPointerException e){
@@ -223,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NotesAdapter.OnNoteClickListener onNoteClickListener = new NotesAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(Note note) {
+                oldHashtags = dbHelper.getSpecificHashtags(note.getId());
                 note_intent.putExtra("Note", note);
                 startActivityForResult(note_intent, REQUEST_CODE_UPDATENOTE);
             }
@@ -249,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    //inits text view that's shown instead of recycler view when there are no items to show
+    /**inits text view that's shown instead of recycler view when there are no items to show*/
     private void initTextView(){
         textView = new TextView(this);
         textView.setText(R.string.text_view_instead_of_list);
@@ -288,18 +293,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         calendar.setEvents(events);
     }
 
-    //initialises spinner on the toolbar, that changes the view of the activity between
-    // 'calendar view' and 'all notes', and animations of the
-    private void initSpinner(){
-        spinner = findViewById(R.id.main_appearance_spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item,
-                getResources().getStringArray(R.array.spinner_main_items));
-        spinner.setAdapter(adapter);
-        spinner.setSelection(0);
+    /**initialises button on the toolbar, that changes the view of the activity between
+     'calendar view' and 'all notes', and animations*/
+    private void initToolbarButton(){
+        HashMap<Boolean, String> stateNames = new HashMap<Boolean, String>();
+        stateNames.put(true, "All notes");
+        stateNames.put(false, "Calendar");
+
+        Button button = findViewById(R.id.main_appearance_switch_btn);
+        ImageView pic = findViewById(R.id.pic);
+        button.setText(stateNames.get(allNotesScreen));
 
         Animation animationAppear = AnimationUtils.loadAnimation(this, R.anim.animation_appear);
         Animation animationDisappear = AnimationUtils.loadAnimation(this, R.anim.animation_disappear);
+        Animation rotate = AnimationUtils.loadAnimation(this, R.anim.animation_rotate);
+
         animationAppear.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -327,31 +335,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onAnimationRepeat(Animation animation) {}
         });
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch(position){
-                    case 0: { //Calendar
-                        if (allNotesScreen){
-                            allNotesScreen = false;
-                            calendar.startAnimation(animationAppear);
-                        }
-                        break;
-                    }
-                    case 1: { //All notes
-                        if (!allNotesScreen){
-
-                            allNotesScreen = true;
-                            calendar.startAnimation(animationDisappear);
-                        }
-                        break;
-                    }
+            public void onClick(View v) {
+                if (allNotesScreen){
+                    allNotesScreen = false;
+                    button.setText(stateNames.get(allNotesScreen));
+                    pic.startAnimation(rotate);
+                    calendar.startAnimation(animationAppear);
+                } else {
+                    allNotesScreen = true;
+                    button.setText(stateNames.get(allNotesScreen));
+                    pic.startAnimation(rotate);
+                    calendar.startAnimation(animationDisappear);
                 }
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
         });
-
     }
 
     private void initNavView(){
@@ -362,5 +361,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private ArrayList<Hashtag> getRemovedHashtags(ArrayList<Hashtag> oldList, ArrayList<Hashtag> newList){
+        ArrayList<Hashtag> hashtagsToRemove = new ArrayList<>();
+        for (int i = 0; i < oldList.size(); i++){
+            boolean flag = true;
+            for (int k = 0; k < newList.size(); k++){
+                if (newList.get(k).equals(oldList.get(i))){
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) hashtagsToRemove.add(oldHashtags.get(i));
+        }
+        return hashtagsToRemove;
     }
 }

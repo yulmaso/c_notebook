@@ -22,9 +22,6 @@ public class NoteEditText extends AppCompatEditText {
     private final Context context;
     private int note_id;
 
-    private ArrayList<Hashtag> hashtags;
-    private ArrayList<int[]> segments;
-
     private Spannable spannable;
 
     private final HashtagListener hashtagListener;
@@ -40,8 +37,6 @@ public class NoteEditText extends AppCompatEditText {
     }
 
     public interface HashtagListener {
-        void onNewHashtag();
-
         void onEditHashtag();
     }
 
@@ -53,8 +48,6 @@ public class NoteEditText extends AppCompatEditText {
     }
 
     private void init() {
-        segments = new ArrayList<>();
-        hashtags = new ArrayList<>();
         colorSwitcher = 0;
         initHashtagListener();
     }
@@ -73,30 +66,22 @@ public class NoteEditText extends AppCompatEditText {
 
                 int i = start;
                 try {
+                    i = start - 1;
                     while (symbolIsLetter(s.charAt(i))) {
                         i--;
                     }
-                } catch (IndexOutOfBoundsException e){
-                    Log.d(LOG_TAG, e.getMessage());
-                    try {
-                        i = start - 1;
-                        while (symbolIsLetter(s.charAt(i))) {
-                            i--;
-                        }
-                    } catch (IndexOutOfBoundsException e1){
-                        Log.d(LOG_TAG, e1.getMessage());
-                    }
+                } catch (IndexOutOfBoundsException e1) {
+                    Log.d(LOG_TAG, e1.getMessage());
                 }
                 try {
                     if (s.charAt(i) == '#') {
                         onHashtag = true;
                     }
-                } catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     Log.d(LOG_TAG, e.getMessage());
                 }
 
-                if (onHashtag){
-//                    changeTheColor(start, start + count, getColor());
+                if (onHashtag) {
                     hashtagListener.onEditHashtag();
                 }
             }
@@ -107,9 +92,8 @@ public class NoteEditText extends AppCompatEditText {
         });
     }
 
-    private void changeTheColor(int start, int end, int color) {
-        Log.d(LOG_TAG, "changing the color");
-        spannable.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    private boolean symbolIsLetter(char l) {
+        return Character.isLetter(l);
     }
 
     private int getColor() {
@@ -141,14 +125,8 @@ public class NoteEditText extends AppCompatEditText {
         return color;
     }
 
-    private boolean symbolIsLetter(char l) {
-        return Character.isLetter(l);
-    }
-
     private ArrayList<Hashtag> findAllHashtags() {
         colorSwitcher = 0;
-        segments.clear();
-        hashtags.clear();
         ArrayList<Hashtag> tags = new ArrayList<>();
         boolean hashtagIsFound = false;
         StringBuilder tagText = new StringBuilder();
@@ -165,10 +143,7 @@ public class NoteEditText extends AppCompatEditText {
                 segment[1] = endOfSegment;
 
                 Hashtag h = new Hashtag(note_id, tagText.toString(), color);
-                Log.d(LOG_TAG, tags.size() + ". Adding hashtag: " + tagText.toString());
                 tags.add(h);
-                hashtags.add(h);
-                segments.add(segment);
                 tagText.delete(0, tagText.length());
 
                 hashtagIsFound = false;
@@ -187,15 +162,12 @@ public class NoteEditText extends AppCompatEditText {
 
             //if the note ends with a hashtag then we need to add it on the last step
             if (i == spannable.length() - 1 && hashtagIsFound && tagText.length() != 0) {
-                Log.d(LOG_TAG, tags.size() + ". Adding hashtag: " + tagText.toString());
                 endOfSegment = i;
                 int[] segment = new int[2];
                 segment[0] = startOfSegment;
                 segment[1] = endOfSegment;
 
                 Hashtag h = new Hashtag(note_id, tagText.toString(), color);
-                hashtags.add(h);
-                segments.add(segment);
                 tags.add(h);
                 tagText.delete(0, tagText.length());
             }

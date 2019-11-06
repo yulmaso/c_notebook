@@ -41,6 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private WriteHashtagsTask writeHashtagsTask;
     private GetAllHashtagsTask getAllHashtagsTask;
     private GetSpecificHashtagsTask getSpecificHashtagsTask;
+    private DeleteHashtagsTask deleteHashtagsTask;
 
     public DBHelper (Context context){
         super(context, DB_NAME, null, 2);
@@ -153,6 +154,11 @@ public class DBHelper extends SQLiteOpenHelper {
             Log.d(LOG_TAG, e.getMessage());
         }
         return null;
+    }
+
+    public void deleteHashtags(ArrayList<Hashtag> tags){
+        deleteHashtagsTask = new DeleteHashtagsTask(getWritableDatabase());
+        deleteHashtagsTask.execute(tags);
     }
 
     public Note getNote(int id){
@@ -385,7 +391,7 @@ public class DBHelper extends SQLiteOpenHelper {
             for (int i = 0; i < lists[0].size(); i++){
                 ContentValues cv = new ContentValues();
                 cv.put("hashtag", lists[0].get(i).getHashtag());
-                cv.put("id_note", lists[0].get(i).getNote_id());
+                cv.put("id_note", lists[0].get(i).getId_note());
                 Log.d(LOG_TAG, lists[0].get(i).getHashtag());
                 Log.d(LOG_TAG, "WRITE HT TASK: " + lists[0].get(i).getHashtag());
                 try {
@@ -445,6 +451,26 @@ public class DBHelper extends SQLiteOpenHelper {
             }
 
             return hashtags;
+        }
+    }
+
+    private static class DeleteHashtagsTask extends AsyncTask<ArrayList<Hashtag>, Void, Void>{
+        SQLiteDatabase db;
+
+        public DeleteHashtagsTask(SQLiteDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(ArrayList<Hashtag>... arrayLists) {
+            String[] args;
+            for (int i = 0; i < arrayLists[0].size(); i++){
+                args = new String[]{arrayLists[0].get(i).getHashtag(), String.valueOf(arrayLists[0].get(i).getId_note())};
+                db.delete("hashtags", "hashtag = ? AND id_note = ?", args);
+//                Cursor c = db.rawQuery("DELETE FROM hashtags WHERE hashtag = \"" + arrayLists[0].get(i).getHashtag() + "\" AND id_note = " + arrayLists[0].get(i).getNote_Id(), null);
+//                c.close();
+            }
+            return null;
         }
     }
 

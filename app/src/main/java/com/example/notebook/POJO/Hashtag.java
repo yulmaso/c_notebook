@@ -7,29 +7,28 @@ import java.io.Serializable;
 
 public class Hashtag implements Serializable, Parcelable {
 
-    private int note_id;
+    private int id_note;
     private String hashtag;
 
     private int color; // db doesn't have this field!
-    private int id; // db doesn't have this field!
 
     public Hashtag(String hashtag) {
         this.hashtag = hashtag;
     }
 
-    public Hashtag(int note_id, String hashtag) {
-        this.note_id = note_id;
+    public Hashtag(int id_note, String hashtag) {
+        this.id_note = id_note;
         this.hashtag = hashtag;
     }
 
-    public Hashtag(int note_id, String hashtag, int color) {
-        this.note_id = note_id;
+    public Hashtag(int id_note, String hashtag, int color) {
+        this.id_note = id_note;
         this.hashtag = hashtag;
         this.color = color;
     }
 
     public boolean equals(Hashtag hashtag) {
-        return hashtag.getId() == id;
+        return hashtag.getHashtag().equals(this.hashtag);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class Hashtag implements Serializable, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(note_id);
+        dest.writeInt(id_note);
         dest.writeString(hashtag);
         dest.writeInt(color);
     }
@@ -55,17 +54,17 @@ public class Hashtag implements Serializable, Parcelable {
     };
 
     private Hashtag(Parcel parcel) {
-        note_id = parcel.readInt();
+        id_note = parcel.readInt();
         hashtag = parcel.readString();
         color = parcel.readInt();
     }
 
-    public int getNote_id() {
-        return note_id;
+    public int getId_note() {
+        return id_note;
     }
 
-    public void setNote_id(int note_id) {
-        this.note_id = note_id;
+    public void setId_note(int id_note) {
+        this.id_note = id_note;
     }
 
     public String getHashtag() {
@@ -82,13 +81,5 @@ public class Hashtag implements Serializable, Parcelable {
 
     public void setColor(int color) {
         this.color = color;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 }
