@@ -1,7 +1,7 @@
 # Simple android notes app with some additional functions
 
 **You can:**
-<table width = 760>
+<table>
   <tr>
      <td>
       Create notes on a certain dates
