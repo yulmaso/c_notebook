@@ -1,4 +1,4 @@
-package com.example.notebook.fragments;
+package com.example.notebook.utils;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,14 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.notebook.activities.NoteActivity;
+import com.example.notebook.screens.note.NoteActivity;
 import com.example.notebook.R;
 
-public class DeleteDialog extends DialogFragment implements View.OnClickListener {
+public class DeleteDialogFragment extends DialogFragment implements View.OnClickListener {
 
     private NoteActivity noteActivity;
 
-    public DeleteDialog(NoteActivity noteActivity){
+    public DeleteDialogFragment(NoteActivity noteActivity){
         this.noteActivity = noteActivity;
     }
 
@@ -45,7 +45,7 @@ public class DeleteDialog extends DialogFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.delete_dialog_button:{
-                noteActivity.setResultDeleteNote();
+                noteActivity.deleteNote();
                 dismiss();
                 break;
             }

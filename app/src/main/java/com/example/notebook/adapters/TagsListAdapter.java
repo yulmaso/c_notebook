@@ -10,8 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
+import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAdapter;
 
 public class TagsListAdapter extends RecyclerView.Adapter<TagsListAdapter.TagsViewHolder> implements DraggableItemAdapter<TagsListAdapter.TagsViewHolder> {
+
+    public static final String TAG = "TagsListAdapter";
+
+
 
     @NonNull
     @Override

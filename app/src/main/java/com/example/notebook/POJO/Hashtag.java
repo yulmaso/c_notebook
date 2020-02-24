@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 
-public class Hashtag implements Serializable, Parcelable {
+public class Hashtag implements Parcelable {
 
     private int id_note;
     private String hashtag;

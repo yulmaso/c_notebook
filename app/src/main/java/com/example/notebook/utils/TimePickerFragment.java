@@ -1,4 +1,4 @@
-package com.example.notebook.fragments;
+package com.example.notebook.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

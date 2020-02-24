@@ -7,12 +7,11 @@
     <include layout="@layout/app_bar_other" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/hashtags_rv"
+        android:id="@+id/specific_list_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
+        android:layoutAnimation="@anim/layout_animation" />
 
 </LinearLayout>

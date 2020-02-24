@@ -37,6 +37,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     }
 
     public void setItems(Collection<Note> notes){
+        this.notes.clear();
+        this.notes.addAll(notes);
+        notifyDataSetChanged();
+    }
+
+    public void addItems(Collection<Note> notes){
         this.notes.addAll(notes);
         notifyDataSetChanged();
     }

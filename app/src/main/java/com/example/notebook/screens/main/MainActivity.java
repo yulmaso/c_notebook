@@ -1,10 +1,10 @@
-package com.example.notebook.activities;
+package com.example.notebook.screens.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
 import android.view.animation.Animation;
@@ -12,12 +12,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -31,59 +27,105 @@ import com.applandeo.materialcalendarview.EventDay;
 import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 import com.example.notebook.POJO.Hashtag;
-import com.example.notebook.activities.other.HashtagsActivity;
-import com.example.notebook.activities.other.MapActivity;
-import com.example.notebook.activities.other.SettingsActivity;
-import com.example.notebook.db.DBHelper;
+import com.example.notebook.app.App;
+import com.example.notebook.screens.main.dagger.MainActivityModule;
+import com.example.notebook.screens.toDo.HashtagsActivity;
+import com.example.notebook.screens.toDo.MapActivity;
+import com.example.notebook.screens.toDo.SettingsActivity;
 import com.example.notebook.adapters.NotesAdapter;
 import com.example.notebook.POJO.Note;
 import com.example.notebook.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.notebook.util.Constants.*;
+import javax.inject.Inject;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+import static com.example.notebook.storage.Constants.*;
+
+public class MainActivity extends AppCompatActivity implements MainContract.View, NavigationView.OnNavigationItemSelectedListener{
 
     public static boolean allNotesScreen;
 
-    private DBHelper dbHelper;
+    @Inject
+    MainContract.Presenter presenter;
+
     private NotesAdapter notesAdapter;
-    private Intent note_intent;
 
     private ArrayList<Hashtag> oldHashtags;
 
-    private RecyclerView list_rv;
-    private CalendarView calendar;
-    private FloatingActionButton fab;
-    private LinearLayout list_layout;
+    @BindView(R.id.list_rv)
+    RecyclerView list_rv;
+
+    @BindView(R.id.calendar)
+    CalendarView calendar;
+
+    @BindView(R.id.newNoteButton)
+    FloatingActionButton fab;
+
+    @BindView(R.id.list_layout)
+    LinearLayout list_layout;
+
+    @BindView(R.id.toolbar_main)
+    Toolbar toolbar;
+
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
+
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+
     private TextView textView;
     private LinearLayout.LayoutParams lParams;
-    private Spinner spinner;
-    private Toolbar toolbar;
-    private NavigationView navigationView;
-    private DrawerLayout drawer;
 
     private int tv_id = 1;
+
+    public static void startActivity(Context context){
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = findViewById(R.id.toolbar_main);
+        ButterKnife.bind(this);
+
+        App.getApp(this).getComponentsHolder()
+                .getActivityComponent(getClass(), new MainActivityModule())
+                .inject(this);
+
+        presenter.attachView(this);
+
+        presenter.viewIsReady();
+
+        init();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        presenter.refreshNotes(allNotesScreen);
+        presenter.refreshCalendar();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(R.id.nav_home);
+    }
+
+    private void init(){
         setSupportActionBar(toolbar);
-
-        dbHelper = new DBHelper(this);
-        if (!dbHelper.checkDataBase()) dbHelper.updateDataBase();
-
-        note_intent = new Intent(this, NoteActivity.class);
-        list_layout = findViewById(R.id.list_layout);
-
         allNotesScreen = false;
 
         initCalendarView();
@@ -93,17 +135,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initToolbarButton();
         initNavView();
 
-        refreshNotes();
-        refreshCalendar();
+        presenter.refreshNotes(allNotesScreen);
+        presenter.refreshCalendar();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        navigationView.setCheckedItem(R.id.nav_home);
-    }
-
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -117,30 +153,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "There are no settings in this app yet :(", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        Intent intent;
-        switch (menuItem.getItemId()){
-            case R.id.nav_home:
-                break;
-            case R.id.nav_hashtags:
-                intent = new Intent(this, HashtagsActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.nav_map:
-                intent = new Intent(this, MapActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.nav_settings:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-        }
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+    }*/
 
     @Override
     public void onBackPressed() {
@@ -151,12 +164,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(LOG_TAG, "onActivityResult mainActivity");
-        Log.d(LOG_TAG, "Result code: " + resultCode);
-        Log.d(LOG_TAG, "Request code: " + requestCode);
+//        Log.d(LOG_TAG, "onActivityResult mainActivity");
+//        Log.d(LOG_TAG, "Result code: " + resultCode);
+//        Log.d(LOG_TAG, "Request code: " + requestCode);
         if (resultCode == RESULT_OK){
             Bundle arguments = data.getExtras();
             Note note = (Note) arguments.getSerializable("Note");
@@ -167,8 +180,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!note.getText().equals("")) {
                         dbHelper.newNote(note);
                         try {
-                            Log.d(LOG_TAG, "On hashtags write");
-                            dbHelper.writeTags(hashtags);
+//                            Log.d(LOG_TAG, "On hashtags write");
+                            dbHelper.writeHashtags(hashtags);
                         } catch (NullPointerException e){
                             Log.d(LOG_TAG, e.getMessage());
                         }
@@ -183,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         try {
                             //TODO: когда редактируешь хэштег, старая версия остается в базе
                             dbHelper.deleteHashtags(getRemovedHashtags(oldHashtags, hashtags));
-                            Log.d(LOG_TAG, "On hashtags write");
-                            dbHelper.writeTags(hashtags);
+//                            Log.d(LOG_TAG, "On hashtags write");
+                            dbHelper.writeHashtags(hashtags);
                         } catch (NullPointerException e){
                             Log.d(LOG_TAG, e.getMessage());
                         }
@@ -193,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
             refreshNotes();
-            refreshCalendar();
+            presenter.refreshCalendar();
         }
         if (resultCode == RESULT_DELETE){
             int id = data.getIntExtra("ID", -1);
@@ -201,55 +214,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dbHelper.deleteNote(id);
             }
             refreshNotes();
-            refreshCalendar();
+            presenter.refreshCalendar();
         }
+    }*/
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 
     private void initCalendarView(){
-        calendar = findViewById(R.id.calendar);
         calendar.setOnDayClickListener(new OnDayClickListener() {
             @Override
             public void onDayClick(EventDay eventDay) {
-                Calendar date = eventDay.getCalendar();
-                try {
-                    calendar.setDate(date);
-                } catch (OutOfDateRangeException e){
-                    Log.d(LOG_TAG, e.getMessage());
-                }
-                refreshNotes();
+                presenter.onCalendarDayClick(eventDay);
             }
         });
     }
 
+    @Override
+    public void setCalendarDate(Calendar date) {
+        try {
+            calendar.setDate(date);
+        } catch (OutOfDateRangeException e){
+            Log.d(LOG_TAG, e.getMessage());
+        }
+    }
+
+    @Override
+    public void setCalendarEvents(List<EventDay> events) {
+        calendar.setEvents(events);
+    }
+
+    @Override
+    public String getCalendarSelectedDate() {
+        return dateFormat.format(calendar.getFirstSelectedDate().getTime());
+    }
+
     private void initRecyclerView(){
-        list_rv = findViewById(R.id.list_rv);
         list_rv.setLayoutManager(new LinearLayoutManager(this));
-        NotesAdapter.OnNoteClickListener onNoteClickListener = new NotesAdapter.OnNoteClickListener() {
-            @Override
-            public void onNoteClick(Note note) {
-                oldHashtags = dbHelper.getSpecificHashtags(note.getId());
-                note_intent.putExtra("Note", note);
-                startActivityForResult(note_intent, REQUEST_CODE_UPDATENOTE);
-            }
-        };
-        notesAdapter = new NotesAdapter(onNoteClickListener, this);
+        NotesAdapter.OnNoteClickListener lambda = (note) ->
+                presenter.onNoteListClick(note);
+        notesAdapter = new NotesAdapter(lambda, this);
         list_rv.setAdapter(notesAdapter);
     }
 
     private void initActionBar(){
-        fab = findViewById(R.id.newNoteButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String date;
-                if (allNotesScreen){
-                    date = dateFormat.format(Calendar.getInstance().getTime());
-                } else {
-                    date = dateFormat.format(calendar.getFirstSelectedDate().getTime());
-                }
-                Note note = new Note("", date, "");
-                note_intent.putExtra("Note", note);
-                startActivityForResult(note_intent, REQUEST_CODE_NEWNOTE);
+                presenter.onActionBarClick(allNotesScreen, view);
             }
         });
     }
@@ -264,33 +278,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lParams.gravity = Gravity.CENTER;
     }
 
-    private void refreshNotes(){
-        notesAdapter.clearItems();
-        ArrayList<Note> notes;
-        if (allNotesScreen) {
-           notes = dbHelper.getAllNotes();
-        } else {
-           notes = dbHelper.getNotesOnDate(dateFormat.format(calendar.getFirstSelectedDate().getTime()));
-        }
-        if (notes != null && notes.size() == 0){
-            if (list_layout.findViewById(tv_id) == null){
-                list_layout.addView(textView, lParams);
-                textView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_fall_down));
-            }
-        } else {
-            list_layout.removeView(findViewById(tv_id));
-            notesAdapter.setItems(notes);
+    @Override
+    public void showTextView() {
+        if (list_layout.findViewById(tv_id) == null) {
+            notesAdapter.clearItems();
+            list_layout.addView(textView, lParams);
+            textView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.animation_fall_down));
         }
     }
 
-    private void refreshCalendar(){
-        List<Calendar> dates = dbHelper.getDates();
-        List<EventDay> events = new ArrayList<>();
-        for (Calendar date : dates) {
-            Log.d(LOG_TAG, date.getTime().toString());
-            events.add(new EventDay(date, R.drawable.ic_note_black_24dp));
-        }
-        calendar.setEvents(events);
+    @Override
+    public void removeTextView(ArrayList<Note> notes) {
+        list_layout.removeView(findViewById(tv_id));
+        notesAdapter.setItems(notes);
     }
 
     /**initialises button on the toolbar, that changes the view of the activity between
@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             @Override
             public void onAnimationEnd(Animation animation) {
-                refreshNotes();
+                presenter.refreshNotes(allNotesScreen);
             }
             @Override
             public void onAnimationRepeat(Animation animation) {}
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onAnimationEnd(Animation animation) {
                 calendar.setVisibility(View.GONE);
-                refreshNotes();
+                presenter.refreshNotes(allNotesScreen);
             }
             @Override
             public void onAnimationRepeat(Animation animation) {}
@@ -354,8 +354,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initNavView(){
-        drawer = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -363,18 +361,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private ArrayList<Hashtag> getRemovedHashtags(ArrayList<Hashtag> oldList, ArrayList<Hashtag> newList){
-        ArrayList<Hashtag> hashtagsToRemove = new ArrayList<>();
-        for (int i = 0; i < oldList.size(); i++){
-            boolean flag = true;
-            for (int k = 0; k < newList.size(); k++){
-                if (newList.get(k).equals(oldList.get(i))){
-                    flag = false;
-                    break;
-                }
-            }
-            if (flag) hashtagsToRemove.add(oldHashtags.get(i));
+    @Override
+    public boolean onNavigationItemSelected(@NotNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.nav_home:
+                break;
+            case R.id.nav_hashtags:
+                HashtagsActivity.startActivity(this);
+                break;
+            case R.id.nav_map:
+                MapActivity.startActivity(this);
+                break;
+            case R.id.nav_settings:
+                SettingsActivity.startActivity(this);
+                break;
         }
-        return hashtagsToRemove;
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

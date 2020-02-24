@@ -1,7 +1,5 @@
-package com.example.notebook.activities.other;
+package com.example.notebook.screens;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -12,7 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.notebook.R;
 
-public abstract class SecondaryActivity extends AppCompatActivity {
+public abstract class MinorActivity extends AppCompatActivity {
     private ImageButton back_button;
     private Toolbar toolbar;
 

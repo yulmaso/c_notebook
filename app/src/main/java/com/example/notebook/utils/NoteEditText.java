@@ -1,4 +1,4 @@
-package com.example.notebook.util;
+package com.example.notebook.utils;
 
 import android.content.Context;
 import android.text.Editable;
@@ -15,7 +15,7 @@ import com.example.notebook.R;
 
 import java.util.ArrayList;
 
-import static com.example.notebook.util.Constants.LOG_TAG;
+import static com.example.notebook.storage.Constants.LOG_TAG;
 
 public class NoteEditText extends AppCompatEditText {
 
