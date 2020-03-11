@@ -1,4 +1,4 @@
-# Simple android notes app with some additional functions
+# Android notes app with some additional functions
 
 **You can:**
 | Create notes on a certain dates | Write hashtags | Get all notes containing specific hashtag |
